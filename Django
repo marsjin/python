@@ -1,0 +1,90 @@
+1、用django-admin的命令创建一个项目，命名为firstsite
+django-admin startproject firstsite
+
+如果python3，请更改manage.py
+#!/usr/bin/env python3
+
+2、创建app
+python manage.py startapp firstapp
+
+python manage.py help
+
+3、在setting中增加app
+INSTALLED_APPS
+增加 firstapp
+
+4、创建数据库
+python manage.py makemigrations
+python manage.py migrate
+
+5、运行服务器
+python manage.py runserver 
+
+http://127.0.0.1:8000
+
+
+6、html、css、图片
+1）在firstapp目录下创建templates和static文件夹
+2）setting修改模版路径
+TEMPLATES
+'DIRS':[os.path.join(BASE_DIR,'templates').replace('\\','/')],
+3）在html里增加模版标签
+#在html首行增加：
+{% load staticfiles %}
+#把css路径替换为
+href ="{% static 'css/semantic.css' %}"
+#把图片路径更改为类似
+{% static 'images/star_banner.jpg' %}
+
+7、创建后台和超级管理员
+1）创建管理员账号
+python manage.py createsuperuser
+2）使用管理后台
+http://127.0.0.1:8000/admin
+3）在admin里增加想要的管理后台数据项
+from firstapp.models import People
+admin.site.register(People)
+4）在models里面设置内容列表的标题，修改models.py，在最后增加如下：
+def __str__(self):
+return self.name
+5）在admin里增加文件管理，在admin.py增加数据项
+from firstapp.models import People,Article
+admin.site.register(People)
+admin.site.register(Article)
+6）在model继续增加文章数据字段：
+class Aritcel(models.Model):
+headline = models.CharField(null=True,blank=True,max_length=500)
+content = models.TextField(null=True,blank=True)
+def __str__(self):
+return self.headline
+7）合并数据库
+python manage.py makemigrations
+python manage.py migrate
+
+8、在View中获取Model中的数据
+from firstapp.models import  People,Article
+def index(request):
+context ={}
+article_list = Aritcle.objects.all()
+context['article_list'] =article_list
+index_page = render(request,'first_web_2.html',context)
+return index_page
+9、在Template中增加动态内容
+修改templates文件夹下的html文件中
+{% for article in article_list %}
+{{ article.headline }}
+{{ article.content|truncateword:100 }}
+{% endfor %}
+
+10、在URL中分配网址，在urls.py中增加如下代码
+from django.conf.urls import url
+from django.contrib import admin
+from firstapp.views import first_try,index #增加index
+
+urlpatterns =[
+url(r'^admin/',admin.site.urls),
+url(r'^first_try/',first_try),
+url(r'^index',index,name='index), #增加代码
+]
+
+打开浏览器输入：http://127.0.0.1:8000/index
