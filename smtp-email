@@ -1,0 +1,28 @@
+1、安装组件
+pip install secure-smtplib email
+
+
+#coding: utf-8
+
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+
+sender =  raw_input("Please enter a sender email address:\n> ") #“我”的邮箱
+password = raw_input("keywords:\n> ") #密码
+receiver =  raw_input("Please enter a receiver address:\n> ") #接收者邮箱
+subject =  raw_input("Title:\n> ") #邮件标题
+words =  raw_input("Text:\n> ") #邮件正文
+smtpserver = 'smtp.126.com'
+
+msg = MIMEText(words, 'plain', 'utf-8')#中文需参数‘utf-8'，单字节字符不需要
+msg['Subject'] = Header(subject, 'utf-8') #邮件标题
+msg['from'] = sender #发信人地址
+msg['to'] = receiver #收信人地址
+
+smtp = smtplib.SMTP_SSL() #smtplib.SMTP() 普通／加密
+smtp.connect('smtp.126.com')
+smtp.login(sender, password)
+smtp.sendmail(sender, receiver, msg.as_string()) #这行代码解决的下方554的错误
+smtp.quit()
+print "邮件发送成功!"
